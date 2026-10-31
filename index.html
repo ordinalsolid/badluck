@@ -1,591 +1,716 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Bad Luck - The Ominous Gaze</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Limelight&family=Poiret+One&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BAD LUCK - The Ominous Gaze</title>
+    <!-- Tailwind CSS for UI Layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Limelight & Poiret One for Art Deco styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Poiret+One:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            box-sizing: border-box;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0210;
+            font-family: 'Poiret One', cursive, sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
 
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #0b0210;
-      font-family: 'Limelight', 'Poiret One', cursive, sans-serif;
-    }
+        /* Art Deco Elongated Title Typography */
+        .font-art-deco {
+            font-family: 'Limelight', cursive, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            transform: scaleY(1.5);
+            transform-origin: top center;
+            color: transparent;
+            -webkit-text-stroke: 2px #ffea00;
+            text-shadow: 
+                0 0 15px rgba(255, 234, 0, 0.8),
+                0 0 30px rgba(255, 215, 0, 0.4),
+                3px 3px 0px #000;
+            line-height: 0.9;
+        }
 
-    #game-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        .deco-card {
+            background: rgba(14, 3, 26, 0.94);
+            border: 3px double #ffea00;
+            box-shadow: 
+                0 0 30px rgba(255, 234, 0, 0.35), 
+                inset 0 0 20px rgba(255, 234, 0, 0.15);
+        }
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      cursor: crosshair;
-    }
+        .btn-deco {
+            background: linear-gradient(180deg, #fff3a1 0%, #ffea00 50%, #d4af37 100%);
+            color: #0c0212;
+            font-family: 'Limelight', cursive, sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.6), 0 4px 0 #997a00;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+        }
 
-    /* Art Deco UI Overlay */
-    .ui-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 24px 32px;
-    }
+        .btn-deco:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.85), 0 6px 0 #997a00;
+        }
 
-    .header-title {
-      font-family: 'Limelight', sans-serif;
-      font-size: clamp(3rem, 8vw, 6.5rem);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: #ffeb3b;
-      text-shadow: 
-        0 0 10px rgba(255, 235, 59, 0.8),
-        0 0 25px rgba(255, 215, 0, 0.5),
-        2px 2px 0px #000;
-      text-align: center;
-      line-height: 0.9;
-      transform: scaleY(1.3);
-      margin-top: 10px;
-    }
+        .btn-deco:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.5), 0 2px 0 #997a00;
+        }
 
-    .hud {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      width: 100%;
-      color: #ffeb3b;
-      font-family: 'Poiret One', sans-serif;
-      font-weight: 700;
-      text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
-    }
-
-    .hud-box {
-      background: rgba(15, 3, 25, 0.65);
-      border: 2px solid #ffeb3b;
-      box-shadow: 0 0 15px rgba(255, 235, 59, 0.3), inset 0 0 10px rgba(255, 235, 59, 0.2);
-      padding: 12px 24px;
-      border-radius: 4px;
-      min-width: 180px;
-    }
-
-    .hud-label {
-      font-size: 0.85rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #e0aaff;
-    }
-
-    .hud-value {
-      font-family: 'Limelight', sans-serif;
-      font-size: 2.2rem;
-      color: #ffeb3b;
-    }
-
-    /* Screen Overlays */
-    .overlay-screen {
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 2, 18, 0.85);
-      backdrop-filter: blur(4px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      pointer-events: auto;
-      z-index: 10;
-      transition: opacity 0.3s ease;
-    }
-
-    .overlay-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .deco-card {
-      border: 3px double #ffeb3b;
-      box-shadow: 0 0 30px rgba(255, 235, 59, 0.4), inset 0 0 20px rgba(255, 235, 59, 0.15);
-      padding: 40px 60px;
-      text-align: center;
-      max-width: 550px;
-      background: rgba(18, 4, 30, 0.95);
-    }
-
-    .deco-card h2 {
-      font-family: 'Limelight', sans-serif;
-      font-size: 3.5rem;
-      color: #ffeb3b;
-      letter-spacing: 0.2em;
-      margin-bottom: 15px;
-      text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
-      transform: scaleY(1.2);
-    }
-
-    .deco-card p {
-      font-family: 'Poiret One', sans-serif;
-      font-size: 1.35rem;
-      color: #f0c6ff;
-      line-height: 1.6;
-      margin-bottom: 30px;
-      font-weight: 600;
-    }
-
-    .btn-deco {
-      font-family: 'Limelight', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.15em;
-      color: #0b0210;
-      background: linear-gradient(185deg, #fff3a1, #ffeb3b, #d4af37);
-      border: 2px solid #ffeb3b;
-      padding: 14px 38px;
-      cursor: pointer;
-      box-shadow: 0 0 15px rgba(255, 235, 59, 0.6);
-      transition: all 0.2s ease;
-      text-transform: uppercase;
-    }
-
-    .btn-deco:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(255, 235, 59, 0.9);
-      background: #ffffff;
-    }
-  </style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+        }
+    </style>
 </head>
-<body>
+<body class="w-screen h-screen flex items-center justify-center relative">
 
-  <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-
-    <!-- Art Deco UI -->
-    <div class="ui-layer">
-      <div class="header-title">BAD LUCK</div>
-      <div class="hud">
-        <div class="hud-box">
-          <div class="hud-label">Chaos Score</div>
-          <div class="hud-value" id="scoreDisplay">0</div>
-        </div>
-        <div class="hud-box" style="text-align: right;">
-          <div class="hud-label">Multiplier</div>
-          <div class="hud-value" id="comboDisplay">1.0x</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Start Overlay -->
-    <div id="startOverlay" class="overlay-screen">
-      <div class="deco-card">
-        <h2>BAD LUCK</h2>
-        <p>Direct the giant cat's <strong>Ominous Gaze</strong> using your cursor or finger to blast away lucky <strong>4-Leaf Clovers</strong> (scaled 2x size)!<br/><br/>Keep your beam locked on them to shatter their good fortune before time runs out.</p>
-        <button class="btn-deco" onclick="startGame()">UNLEASH GAZE</button>
-      </div>
-    </div>
-
-    <!-- Game Over Overlay -->
-    <div id="gameOverOverlay" class="overlay-screen hidden">
-      <div class="deco-card">
-        <h2 style="color: #ff5252;">CURSED</h2>
-        <p>Final Score: <span id="finalScore" style="color:#ffeb3b; font-weight:bold;">0</span></p>
-        <button class="btn-deco" onclick="startGame()">RESTART GAZE</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // UI Elements
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const comboDisplay = document.getElementById('comboDisplay');
-    const startOverlay = document.getElementById('startOverlay');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const finalScore = document.getElementById('finalScore');
-
-    // Web Audio API Synth Engine
-    let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-    }
-
-    function playLaserSound() {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.08);
-    }
-
-    function playShatterSound() {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.12);
-    }
-
-    // Load User's Cat Image
-    const catImage = new Image();
-    // Inline data URL version of the cat artwork (Yellow pixel outline, black silhouette, yellow almond eyes)
-    catImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAl8AAAOECAYAAACfMVRFAAAfpElEQVR42u3de3hkZX3A8fckk2wCu+gCAEB8AQCILwAAxBcAQCf4fxydhYBwrFhnAAAAAElFTkSuQmCC';
-
-    // Game State
-    let isPlaying = false;
-    let score = 0;
-    let combo = 1.0;
-    let gameTime = 0;
-    let lastTime = 0;
-    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    let clovers = [];
-    let particles = [];
-    let spawnTimer = 0;
-
-    // Responsive Canvas Resizing
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Mouse / Touch Controls
-    window.addEventListener('mousemove', (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    });
-
-    // 4-Leaf Clover Class (2x Enlarged Size)
-    class FourLeafClover {
-      constructor() {
-        this.radius = Math.random() * 15 + 50; // Twice as big (50px to 65px radius)
-        this.x = Math.random() * (canvas.width - 200) + 100;
-        this.y = -this.radius * 2;
-        this.speedY = Math.random() * 1.5 + 1.2;
-        this.speedX = Math.sin(Math.random() * Math.PI * 2) * 1.2;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.03;
-        this.hp = 100;
-        this.maxHp = 100;
-        this.targetGazeTimer = 0;
-      }
-
-      update() {
-        this.y += this.speedY;
-        this.x += this.speedX;
-        this.rotation += this.rotSpeed;
-
-        // Bounce off walls
-        if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
-          this.speedX *= -1;
-        }
-      }
-
-      draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-
-        // Outer Glow
-        ctx.shadowColor = '#00ff88';
-        ctx.shadowBlur = this.targetGazeTimer > 0 ? 30 : 15;
-
-        // Render 4-Leaf Clover Shape (2x Larger)
-        const scale = this.radius / 30;
-        ctx.fillStyle = this.targetGazeTimer > 0 ? '#ffeb3b' : '#00e676';
-        ctx.strokeStyle = '#ffff00';
-        ctx.lineWidth = 3;
-
-        // Draw 4 leaves around center
-        for (let i = 0; i < 4; i++) {
-          ctx.rotate(Math.PI / 2);
-          ctx.beginPath();
-          ctx.arc(0, -14 * scale, 14 * scale, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        }
-
-        // Center Stem / Core
-        ctx.fillStyle = '#1b5e20';
-        ctx.beginPath();
-        ctx.arc(0, 0, 6 * scale, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-
-        // Draw Health / Curse Ring if being hit
-        if (this.hp < this.maxHp) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius + 12, 0, (Math.PI * 2) * (this.hp / this.maxHp));
-          ctx.strokeStyle = '#ffeb3b';
-          ctx.lineWidth = 4;
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-    }
-
-    // Particle Effect for Shattered Clovers
-    class SparkParticle {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 8;
-        this.vy = (Math.random() - 0.5) * 8;
-        this.life = 1.0;
-        this.decay = Math.random() * 0.04 + 0.02;
-        this.color = Math.random() > 0.5 ? '#ffeb3b' : '#00e676';
-        this.size = Math.random() * 8 + 4;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= this.decay;
-      }
-      draw(ctx) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life);
-        ctx.fillStyle = this.color;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 10;
-        ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
-        ctx.restore();
-      }
-    }
-
-    // Background Layered Colors (Exact Graphic Bands)
-    function drawBackground() {
-      const h = canvas.height;
-      const w = canvas.width;
-
-      // 4 Color Stripes: Sky Blue -> Purple -> Magenta
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0.00, '#38b6ff'); // Bright Sky Blue
-      grad.addColorStop(0.35, '#5c4d9a'); // Violet Purple
-      grad.addColorStop(0.65, '#8c116c'); // Deep Magenta
-      grad.addColorStop(1.00, '#e6005c'); // Hot Pink Magenta
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    // Draw Giant Screen-Filling Pixel Cat
-    function drawCat() {
-      ctx.save();
-      ctx.imageSmoothingEnabled = false; // Preserve crisp pixel-art style
-
-      const h = canvas.height * 0.85;
-      const aspect = catImage.width / catImage.height || 0.67;
-      const w = h * aspect;
-      const x = (canvas.width - w) / 2;
-      const y = canvas.height - h;
-
-      if (catImage.complete && catImage.naturalWidth !== 0) {
-        ctx.drawImage(catImage, x, y, w, h);
-      } else {
-        // Fallback cat drawing matching exact shape if image is loading
-        ctx.fillStyle = '#000000';
-        ctx.strokeStyle = '#ffeb3b';
-        ctx.lineWidth = 8;
+    <!-- Container -->
+    <div id="game-container" class="relative w-full h-full max-w-5xl max-h-[1000px] flex flex-col items-center justify-center p-2 sm:p-4">
         
-        ctx.beginPath();
-        ctx.ellipse(canvas.width / 2, canvas.height * 0.6, w * 0.35, h * 0.35, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
+        <!-- HUD Overlay -->
+        <div id="hud" class="absolute top-4 left-4 right-4 z-20 flex justify-between items-start pointer-events-none hidden">
+            <!-- Score & Multiplier -->
+            <div class="flex flex-col gap-1">
+                <div class="bg-black/80 border border-yellow-400/80 px-4 py-2 rounded shadow-lg">
+                    <span class="text-xs text-yellow-300 font-bold uppercase tracking-widest block font-sans">CHAOS SCORE</span>
+                    <span id="hud-score" class="text-3xl sm:text-4xl font-bold text-yellow-400 tracking-wider" style="font-family: 'Limelight', cursive;">000000</span>
+                </div>
+                <div class="bg-pink-950/80 border border-pink-500/80 px-3 py-1 rounded text-pink-300 font-bold text-sm sm:text-base">
+                    MULTIPLIER <span id="hud-multiplier" class="text-yellow-300 text-lg font-bold ml-1">1.0x</span>
+                </div>
+            </div>
 
-      ctx.restore();
-      return { eyeX: canvas.width * 0.44, eyeY: canvas.height * 0.45 };
-    }
+            <!-- Chaos Energy Meter -->
+            <div class="flex flex-col items-end gap-1">
+                <div class="bg-black/80 border border-yellow-400/80 px-4 py-2 rounded w-48 sm:w-64">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-pink-400 font-bold uppercase tracking-wider font-sans">CHAOS ENERGY</span>
+                        <span id="hud-meter-val" class="text-xs text-yellow-400 font-bold">100%</span>
+                    </div>
+                    <div class="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-pink-500/40 p-0.5">
+                        <div id="hud-meter-bar" class="h-full bg-gradient-to-r from-pink-600 via-purple-500 to-yellow-400 rounded-full transition-all duration-150 w-full"></div>
+                    </div>
+                </div>
+                <div class="text-xs text-yellow-300/90 bg-black/80 px-3 py-1 rounded font-bold border border-yellow-500/30">
+                    BEST: <span id="hud-highscore">0</span>
+                </div>
+            </div>
+        </div>
 
-    // Ominous Gaze Lasers
-    function drawGazeBeams(eyePos) {
-      if (!isPlaying) return;
+        <!-- Missing Image Notification Banner (Shows if Untitled-2-1.png isn't found) -->
+        <div id="image-warning" class="absolute top-20 z-40 bg-red-950/90 border-2 border-red-500 text-red-200 px-6 py-3 rounded-xl max-w-md text-center text-sm font-semibold shadow-2xl hidden">
+            ⚠️ <strong>Untitled-2-1.png</strong> not detected in the root folder!<br>
+            Please place <code class="bg-black px-1.5 py-0.5 rounded text-yellow-300">Untitled-2-1.png</code> in the same folder as <code class="bg-black px-1.5 py-0.5 rounded text-yellow-300">index.html</code>.
+        </div>
 
-      ctx.save();
-      ctx.shadowColor = '#ffff00';
-      ctx.shadowBlur = 20;
+        <!-- Canvas -->
+        <canvas id="gameCanvas" class="w-full h-full rounded-lg shadow-2xl object-contain"></canvas>
 
-      // Dual Gaze Beams from Left & Right Eyes to Mouse Position
-      const eyes = [
-        { x: eyePos.eyeX - 35, y: eyePos.eyeY },
-        { x: eyePos.eyeX + 35, y: eyePos.eyeY }
-      ];
+        <!-- START OVERLAY SCREEN -->
+        <div id="start-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-between p-6 sm:p-10 bg-black/80 backdrop-blur-sm rounded-lg">
+            
+            <div class="flex flex-col items-center mt-2">
+                <h1 class="font-art-deco text-6xl sm:text-8xl tracking-widest mb-6">BAD LUCK</h1>
+                <p class="text-yellow-300 text-lg sm:text-2xl font-bold tracking-widest text-center uppercase mt-4" style="font-family: 'Poiret One', cursive;">
+                    ★ The Ominous Gaze ★
+                </p>
+            </div>
 
-      eyes.forEach(eye => {
-        ctx.beginPath();
-        ctx.moveTo(eye.x, eye.y);
-        ctx.lineTo(mouse.x, mouse.y);
-        ctx.strokeStyle = '#ffeb3b';
-        ctx.lineWidth = 6;
-        ctx.stroke();
+            <!-- Art Deco Instructions Card -->
+            <div class="deco-card p-6 sm:p-8 rounded-xl max-w-lg w-full text-center space-y-4">
+                <p class="text-yellow-300 text-xl font-bold uppercase tracking-wider">
+                    BLAST THE 4-LEAF CLOVERS
+                </p>
+                <div class="bg-black/50 p-4 rounded-lg border border-yellow-500/30 flex flex-col items-center space-y-2">
+                    <span class="text-7xl animate-bounce">🍀</span>
+                    <p class="text-yellow-100 text-base font-semibold leading-relaxed">
+                        Aim the Cat's Ominous Eye-Beams at 2x enlarged <strong>🍀 Clovers</strong> falling from the sky to destroy good luck and stack up your Chaos multiplier!
+                    </p>
+                </div>
+                <p class="text-pink-300 text-xs sm:text-sm font-bold uppercase tracking-widest">
+                    👁️ Move your cursor or swipe touch to direct the gaze!
+                </p>
+            </div>
 
-        ctx.beginPath();
-        ctx.moveTo(eye.x, eye.y);
-        ctx.lineTo(mouse.x, mouse.y);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      });
+            <!-- Start Button -->
+            <div class="flex flex-col items-center gap-2 mb-2 w-full max-w-xs">
+                <button id="btn-start" class="btn-deco w-full py-4 rounded-xl">
+                    UNLEASH GAZE
+                </button>
+            </div>
+        </div>
 
-      // Target Reticle
-      ctx.beginPath();
-      ctx.arc(mouse.x, mouse.y, 20, 0, Math.PI * 2);
-      ctx.strokeStyle = '#ffeb3b';
-      ctx.lineWidth = 3;
-      ctx.stroke();
+        <!-- GAME OVER OVERLAY SCREEN -->
+        <div id="game-over-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-black/90 backdrop-blur-md rounded-lg hidden">
+            <div class="deco-card p-6 sm:p-8 rounded-2xl max-w-md w-full text-center space-y-6">
+                <div>
+                    <h2 class="font-art-deco text-5xl sm:text-6xl mb-4 text-pink-500">CURSED</h2>
+                    <p id="game-over-reason" class="text-yellow-300 font-bold text-sm uppercase tracking-widest">Chaos energy was depleted!</p>
+                </div>
 
-      ctx.restore();
+                <div class="bg-black/70 border border-yellow-500/30 rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center text-gray-300 text-lg">
+                        <span>CHAOS SCORE:</span>
+                        <span id="final-score" class="text-2xl font-bold text-yellow-400" style="font-family: 'Limelight', cursive;">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-300 text-lg">
+                        <span>CLOVERS BLASTED:</span>
+                        <span id="final-curses" class="text-xl font-bold text-pink-400 font-mono">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-300 text-lg border-t border-gray-700 pt-2">
+                        <span>BEST RECORD:</span>
+                        <span id="final-highscore" class="text-2xl font-bold text-yellow-300" style="font-family: 'Limelight', cursive;">0</span>
+                    </div>
+                </div>
 
-      playLaserSound();
-    }
+                <button id="btn-restart" class="btn-deco w-full py-4 rounded-xl">
+                    RESTART GAZE
+                </button>
+            </div>
+        </div>
 
-    // Start Game
-    function startGame() {
-      initAudio();
-      score = 0;
-      combo = 1.0;
-      clovers = [];
-      particles = [];
-      isPlaying = true;
+    </div>
 
-      scoreDisplay.innerText = '0';
-      comboDisplay.innerText = '1.0x';
-
-      startOverlay.classList.add('hidden');
-      gameOverOverlay.classList.add('hidden');
-
-      lastTime = performance.now();
-      requestAnimationFrame(gameLoop);
-    }
-
-    // Main Game Loop
-    function gameLoop(now) {
-      const delta = (now - lastTime) / 1000;
-      lastTime = now;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 1. Draw Background
-      drawBackground();
-
-      // 2. Spawn 2x Size 4-Leaf Clovers
-      if (isPlaying) {
-        spawnTimer += delta;
-        if (spawnTimer > 1.2) {
-          clovers.push(new FourLeafClover());
-          spawnTimer = 0;
-        }
-      }
-
-      // 3. Update & Draw Clovers
-      for (let i = clovers.length - 1; i >= 0; i--) {
-        const c = clovers[i];
-        c.update();
-        c.draw(ctx);
-
-        // Check if Gaze Beam intersects Clover
-        const dist = Math.hypot(mouse.x - c.x, mouse.y - c.y);
-        if (dist < c.radius + 20 && isPlaying) {
-          c.targetGazeTimer = 0.1;
-          c.hp -= 120 * delta; // Gaze destroys clover
-
-          // Emit Particles
-          for (let p = 0; p < 2; p++) {
-            particles.push(new SparkParticle(c.x, c.y));
-          }
-
-          if (c.hp <= 0) {
-            playShatterSound();
-            score += Math.round(100 * combo);
-            combo += 0.1;
-            scoreDisplay.innerText = score;
-            comboDisplay.innerText = combo.toFixed(1) + 'x';
-
-            // Explode particles
-            for (let p = 0; p < 25; p++) {
-              particles.push(new SparkParticle(c.x, c.y));
+    <script>
+        /* --- WEB AUDIO SYNTH ENGINE --- */
+        class GazeAudio {
+            constructor() {
+                this.ctx = null;
+                this.humOsc = null;
+                this.humGain = null;
             }
-            clovers.splice(i, 1);
-            continue;
-          }
-        } else {
-          c.targetGazeTimer = Math.max(0, c.targetGazeTimer - delta);
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                    
+                    this.humOsc = this.ctx.createOscillator();
+                    this.humGain = this.ctx.createGain();
+                    this.humOsc.type = 'sawtooth';
+                    this.humOsc.frequency.setValueAtTime(80, this.ctx.currentTime);
+                    this.humGain.gain.setValueAtTime(0, this.ctx.currentTime);
+                    this.humOsc.connect(this.humGain);
+                    this.humGain.connect(this.ctx.destination);
+                    this.humOsc.start();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            setGazeActive(active) {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                if (active) {
+                    this.humGain.gain.setTargetAtTime(0.09, now, 0.05);
+                    this.humOsc.frequency.setTargetAtTime(120 + Math.sin(now * 12) * 25, now, 0.05);
+                } else {
+                    this.humGain.gain.setTargetAtTime(0, now, 0.05);
+                }
+            }
+
+            playShatter() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(700, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.14);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.14);
+            }
+
+            playGameOver() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                this.setGazeActive(false);
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.8);
+
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.8);
+            }
         }
 
-        // Missed Clover reaches bottom
-        if (c.y - c.radius > canvas.height) {
-          clovers.splice(i, 1);
-          if (isPlaying) {
-            combo = Math.max(1.0, combo - 0.3);
-            comboDisplay.innerText = combo.toFixed(1) + 'x';
-          }
+        const audio = new GazeAudio();
+
+        /* --- CANVAS & ENGINE SETUP --- */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const CANVAS_W = 800;
+        const CANVAS_H = 1100;
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+
+        // Image loader setup for Untitled-2-1.png
+        const catImg = new Image();
+        let catImgLoaded = false;
+        let catImgError = false;
+
+        catImg.onload = () => {
+            catImgLoaded = true;
+            document.getElementById('image-warning').classList.add('hidden');
+        };
+
+        catImg.onerror = () => {
+            catImgError = true;
+            document.getElementById('image-warning').classList.remove('hidden');
+        };
+
+        // Load PNG directly from root directory
+        catImg.src = 'Untitled-2-1.png';
+
+        let gameState = 'START';
+        let score = 0;
+        let highscore = parseInt(localStorage.getItem('badluck_gaze_highscore') || '0');
+        let multiplier = 1.0;
+        let chaosMeter = 100;
+        let cursesCastCount = 0;
+        let frameCount = 0;
+
+        const pointer = {
+            x: CANVAS_W / 2,
+            y: 350
+        };
+
+        // UI Element references
+        const hudEl = document.getElementById('hud');
+        const scoreEl = document.getElementById('hud-score');
+        const multEl = document.getElementById('hud-multiplier');
+        const meterBarEl = document.getElementById('hud-meter-bar');
+        const meterValEl = document.getElementById('hud-meter-val');
+        const highscoreEl = document.getElementById('hud-highscore');
+        const startScreenEl = document.getElementById('start-screen');
+        const gameOverScreenEl = document.getElementById('game-over-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalCursesEl = document.getElementById('final-curses');
+        const finalHighscoreEl = document.getElementById('final-highscore');
+
+        highscoreEl.innerText = highscore;
+
+        /* --- INPUT EVENT HANDLERS --- */
+        function updatePointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = CANVAS_W / rect.width;
+            const scaleY = CANVAS_H / rect.height;
+
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            pointer.x = (clientX - rect.left) * scaleX;
+            pointer.y = (clientY - rect.top) * scaleY;
         }
-      }
 
-      // 4. Update Particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.update();
-        p.draw(ctx);
-        if (p.life <= 0) particles.splice(i, 1);
-      }
+        window.addEventListener('mousemove', (e) => {
+            updatePointerPos(e);
+            if (gameState === 'PLAYING') audio.init();
+        });
 
-      // 5. Draw Cat & Ominous Gaze
-      const eyePos = drawCat();
-      drawGazeBeams(eyePos);
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            updatePointerPos(e);
+            if (gameState === 'PLAYING') audio.init();
+        }, { passive: false });
 
-      if (isPlaying) {
-        requestAnimationFrame(gameLoop);
-      }
-    }
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            updatePointerPos(e);
+            if (gameState === 'PLAYING') audio.init();
+        }, { passive: false });
 
-    // Initial Render
-    drawBackground();
-    catImage.onload = () => {
-      drawCat();
-    };
-  </script>
-</body>
-</html>
+        /* --- BACKGROUND GRADIENT STRIPES --- */
+        const GRADIENT_BANDS = [
+            '#38b6ff', // Sky Blue Top
+            '#2ca2f5',
+            '#2b7be9',
+            '#4a54cf', // Indigo
+            '#6339a8', // Violet Purple
+            '#7b25ad',
+            '#a11175', // Deep Magenta
+            '#c70068',
+            '#e1005a', // Hot Pink
+            '#f80048'  // Magenta Bottom
+        ];
+
+        function drawArtworkBackground() {
+            const bandHeight = CANVAS_H / GRADIENT_BANDS.length;
+            for (let i = 0; i < GRADIENT_BANDS.length; i++) {
+                ctx.fillStyle = GRADIENT_BANDS[i];
+                ctx.fillRect(0, Math.floor(i * bandHeight), CANVAS_W, Math.ceil(bandHeight + 1));
+            }
+        }
+
+        /* --- ART DECO TITLE TEXT RENDERER --- */
+        function drawTitleText() {
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.font = '700 120px "Limelight", cursive, sans-serif';
+
+            ctx.scale(0.85, 2.1);
+            const drawX = (CANVAS_W / 2) / 0.85;
+            const drawY = 55;
+
+            // Yellow Wireframe Outline
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#ffea00';
+            ctx.shadowColor = '#ffea00';
+            ctx.shadowBlur = 14;
+            ctx.strokeText('BAD LUCK', drawX, drawY);
+
+            // White Inner Glow
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ffffff';
+            ctx.shadowBlur = 0;
+            ctx.strokeText('BAD LUCK', drawX, drawY);
+
+            ctx.restore();
+        }
+
+        /* --- DRAW EXTERNAL CAT PNG (Untitled-2-1.png) --- */
+        function drawCatImage() {
+            const catH = CANVAS_H * 0.85; // Fill ~85% of canvas height
+            let catW = catH * 0.7;        // Aspect ratio fallback
+
+            if (catImgLoaded && catImg.naturalWidth > 0) {
+                const aspect = catImg.naturalWidth / catImg.naturalHeight;
+                catW = catH * aspect;
+            }
+
+            const catX = (CANVAS_W - catW) / 2;
+            const catY = CANVAS_H - catH;
+
+            ctx.save();
+            ctx.imageSmoothingEnabled = false; // Nearest-neighbor crisp pixel rendering
+
+            if (catImgLoaded && catImg.naturalWidth > 0) {
+                ctx.drawImage(catImg, catX, catY, catW, catH);
+            } else {
+                // Fallback rendering if Untitled-2-1.png is not found
+                ctx.fillStyle = '#06010a';
+                ctx.strokeStyle = '#ffea00';
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.ellipse(CANVAS_W / 2, CANVAS_H * 0.65, catW * 0.35, catH * 0.35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffea00';
+                ctx.font = 'bold 20px "Poiret One", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Place Untitled-2-1.png in folder', CANVAS_W / 2, CANVAS_H * 0.65);
+            }
+
+            ctx.restore();
+
+            // Eye coordinates relative to the drawn cat image bounding box
+            return {
+                leftEye: { x: catX + catW * 0.22, y: catY + catH * 0.43 },
+                rightEye: { x: catX + catW * 0.33, y: catY + catH * 0.43 }
+            };
+        }
+
+        /* --- 2X ENLARGED 🍀 CLOVER EMOJI TARGET CLASS --- */
+        class CloverTarget {
+            constructor() {
+                this.radius = 52; // Collision Radius
+                this.fontSize = 95; // 2x Large Emoji Size
+
+                // Spawn top drifting down with sway
+                this.x = Math.random() * (CANVAS_W - 200) + 100;
+                this.y = -60;
+                this.vy = 1.6 + Math.random() * 1.8;
+                this.swaySpeed = 0.03 + Math.random() * 0.02;
+                this.swayAmount = 1.2 + Math.random() * 1.5;
+                this.rotation = (Math.random() - 0.5) * 0.5;
+
+                this.hp = 100;
+                this.maxHp = 100;
+                this.targetGazeProgress = 0;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.x += Math.sin(this.y * this.swaySpeed) * this.swayAmount;
+                this.rotation += 0.008;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                // Laser lock-on outer ring
+                if (this.targetGazeProgress > 0) {
+                    ctx.strokeStyle = '#ffea00';
+                    ctx.lineWidth = 5;
+                    ctx.shadowColor = '#ffea00';
+                    ctx.shadowBlur = 20;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.radius + 12, 0, Math.PI * 2 * (this.hp / this.maxHp));
+                    ctx.stroke();
+                }
+
+                // Draw 🍀 Emoji
+                ctx.font = `${this.fontSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#00ff88';
+                ctx.shadowBlur = 18;
+                ctx.fillText('🍀', 0, 0);
+
+                ctx.restore();
+            }
+        }
+
+        /* --- SPARK PARTICLES --- */
+        let particles = [];
+
+        function spawnSparkParticles(x, y, count = 16) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 11,
+                    vy: (Math.random() - 0.5) * 11,
+                    size: Math.random() * 8 + 4,
+                    color: Math.random() > 0.4 ? '#ffea00' : '#00ff88',
+                    alpha: 1.0
+                });
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.035;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 8;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.restore();
+            }
+        }
+
+        /* --- GAZE BEAM & CLOVER DAMAGE --- */
+        function drawGazeBeamsAndCheckHits(eyePos, clovers) {
+            const targetX = pointer.x;
+            const targetY = pointer.y;
+
+            // Dual Eye Laser Beams
+            ctx.save();
+            ctx.strokeStyle = '#ffea00';
+            ctx.shadowColor = '#ffea00';
+            ctx.shadowBlur = 20;
+            ctx.lineWidth = 5 + Math.sin(frameCount * 0.4) * 2;
+
+            // Left Eye Beam
+            ctx.beginPath();
+            ctx.moveTo(eyePos.leftEye.x, eyePos.leftEye.y);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
+
+            // Right Eye Beam
+            ctx.beginPath();
+            ctx.moveTo(eyePos.rightEye.x, eyePos.rightEye.y);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
+
+            // Target Reticle
+            ctx.beginPath();
+            ctx.arc(targetX, targetY, 18, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(targetX - 3, targetY - 3, 6, 6);
+            ctx.restore();
+
+            let activeHitting = false;
+
+            for (let i = clovers.length - 1; i >= 0; i--) {
+                let c = clovers[i];
+                let dist = Math.hypot(targetX - c.x, targetY - c.y);
+
+                if (dist < c.radius + 20) {
+                    activeHitting = true;
+                    c.targetGazeProgress = 1;
+                    c.hp -= 3.8;
+
+                    spawnSparkParticles(c.x, c.y, 2);
+
+                    if (c.hp <= 0) {
+                        cursesCastCount++;
+                        let pts = Math.round(150 * multiplier);
+                        score += pts;
+                        multiplier = parseFloat((multiplier + 0.2).toFixed(1));
+                        chaosMeter = Math.min(100, chaosMeter + 14);
+
+                        audio.playShatter();
+                        spawnSparkParticles(c.x, c.y, 26);
+                        clovers.splice(i, 1);
+                    }
+                } else {
+                    c.targetGazeProgress = 0;
+                }
+            }
+
+            audio.setGazeActive(gameState === 'PLAYING' && activeHitting);
+        }
+
+        /* --- GAME ENGINE & LOOP --- */
+        let clovers = [];
+        let spawnTimer = 0;
+
+        function handleSpawning() {
+            spawnTimer++;
+            if (spawnTimer > Math.max(22, 60 - Math.floor(score / 1500) * 4)) {
+                spawnTimer = 0;
+                if (clovers.length < 7) {
+                    clovers.push(new CloverTarget());
+                }
+            }
+        }
+
+        function updateHUD() {
+            scoreEl.innerText = score.toString().padStart(6, '0');
+            multEl.innerText = `${multiplier.toFixed(1)}x`;
+            meterValEl.innerText = `${Math.max(0, Math.round(chaosMeter))}%`;
+            meterBarEl.style.width = `${Math.max(0, chaosMeter)}%`;
+        }
+
+        function triggerGameOver(reason) {
+            gameState = 'GAMEOVER';
+            audio.playGameOver();
+
+            if (score > highscore) {
+                highscore = score;
+                localStorage.setItem('badluck_gaze_highscore', highscore.toString());
+            }
+
+            document.getElementById('game-over-reason').innerText = reason;
+            finalScoreEl.innerText = score;
+            finalCursesEl.innerText = cursesCastCount;
+            finalHighscoreEl.innerText = highscore;
+            highscoreEl.innerText = highscore;
+
+            hudEl.classList.add('hidden');
+            gameOverScreenEl.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            score = 0;
+            multiplier = 1.0;
+            chaosMeter = 100;
+            cursesCastCount = 0;
+            clovers = [];
+            particles = [];
+
+            gameOverScreenEl.classList.add('hidden');
+            startScreenEl.classList.add('hidden');
+            hudEl.classList.remove('hidden');
+
+            gameState = 'PLAYING';
+        }
+
+        // Button Listeners
+        document.getElementById('btn-start').addEventListener('click', () => {
+            audio.init();
+            resetGame();
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            audio.init();
+            resetGame();
+        });
+
+        /* --- MAIN ANIMATION LOOP --- */
+        function gameLoop() {
+            frameCount++;
+
+            ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+            // 1. Draw Artwork Gradient Background Bands
+            drawArtworkBackground();
+
+            // 2. Draw Art Deco Title Text
+            drawTitleText();
+
+            // 3. Draw Cat Image (Untitled-2-1.png)
+            const eyePos = drawCatImage();
+
+            if (gameState === 'PLAYING') {
+                // Passive Chaos Meter Energy Decay
+                chaosMeter -= 0.055;
+                if (chaosMeter <= 0) {
+                    triggerGameOver("CHAOS ENERGY EXHAUSTED!");
+                }
+
+                // Handle Spawning & Clover Fall Motion
+                handleSpawning();
+
+                for (let i = clovers.length - 1; i >= 0; i--) {
+                    let c = clovers[i];
+                    c.update();
+                    c.draw();
+
+                    // Missed Clover reaches bottom
+                    if (c.y > CANVAS_H + 70) {
+                        clovers.splice(i, 1);
+                        multiplier = Math.max(1.0, parseFloat((multiplier - 0.2).toFixed(1)));
+                    }
+                }
+
+                // Draw Gaze Laser Beams & Check Hits
+                drawGazeBeamsAndCheckHits(eyePos, clovers);
+
+                // FX & HUD Updates
+                updateAndDrawParticles();
+                updateHUD();
+
+            } else {
+                updateAndDrawParticles();
+            }
